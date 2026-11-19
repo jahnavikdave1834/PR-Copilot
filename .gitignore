@@ -4,3 +4,9 @@ __pycache__/
 .env
 *.db
 .pytest_cache/
+
+# Technical approach reports
+TECHNICAL_APPROACH_REPORT.md
+TECHNICAL_APPROACH*.md
+technical_approach*.md
+
