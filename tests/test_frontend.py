@@ -1,6 +1,10 @@
+import os
+from pathlib import Path
 from unittest.mock import patch, MagicMock
 import pytest
 from frontend.api_client import BackendClient
+
+APP_FILE = str(Path(__file__).resolve().parent.parent / "frontend" / "app.py")
 
 
 def test_api_client_endpoints():
@@ -52,7 +56,7 @@ def test_streamlit_views_navigation():
     ]
 
     for view in views:
-        at = AppTest.from_file("kg_demo/frontend/app.py")
+        at = AppTest.from_file(APP_FILE)
         at.run()
         at.sidebar.radio[0].set_value(view).run()
         assert len(at.exception) == 0, f"Exception in view {view}"
@@ -61,7 +65,7 @@ def test_streamlit_views_navigation():
 def test_streamlit_seeded_assessment_flow():
     from streamlit.testing.v1 import AppTest
 
-    at = AppTest.from_file("kg_demo/frontend/app.py")
+    at = AppTest.from_file(APP_FILE)
     at.run()
     assert len(at.exception) == 0
 
