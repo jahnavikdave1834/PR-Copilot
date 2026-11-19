@@ -14,7 +14,7 @@ from loguru import logger
 
 from ..services.github_service import fetch_pr_data
 from ..core.diff_analyzer import analyze_pr
-from ..services.question_service import generate_questions, QuestionGenerationError
+from ..services.question_service import generate_questions, generate_ast_fallback_questions, QuestionGenerationError
 from ..services.evaluation_service import evaluate_answer, EvaluationError
 from ..services.report_service import generate_report
 from ..db.database import get_db, init_db, Intern, Assessment, QuestionRecord, AnswerRecord, EvaluationRecord, ReportRecord
@@ -46,8 +46,8 @@ async def generate_assessment(
     try:
         questions: List[Question] = await generate_questions(pr_context)
     except QuestionGenerationError as exc:
-        logger.error("Question generation failed: {}", exc)
-        raise HTTPException(status_code=502, detail=f"Failed to generate questions: {exc}") from exc
+        logger.warning("Groq question generation unavailable ({}), using AST-grounded questions", exc)
+        questions = generate_ast_fallback_questions(pr_context)
 
     with get_db() as db:
         intern = db.query(Intern).filter_by(identifier=intern_id).first()

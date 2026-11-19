@@ -136,15 +136,23 @@ async def _call_groq(context: PRContext) -> List[dict]:
         await client.close()
 
 
+def generate_ast_fallback_questions(context: PRContext) -> List[Question]:
+    """Deterministically generate grounded questions directly from AST diff context
+    when Groq LLM API is unavailable or unconfigured.
+    """
+    raw_list = _generate_ast_fallback_questions(context)
+    questions: List[Question] = []
+    for item in raw_list:
+        if hasattr(Question, "model_validate"):
+            questions.append(Question.model_validate(item))
+        else:
+            questions.append(Question.parse_obj(item))
+    return questions
+
+
 async def generate_questions(pr_context: PRContext) -> QuestionsResponse:
     """Public entry point used by API routes to generate questions."""
-    raw_questions = None
-    try:
-        raw_questions = await _call_groq(pr_context)
-    except Exception as exc:
-        logger.warning("Groq question generation unavailable ({}), using AST-grounded questions", exc)
-        raw_questions = _generate_ast_fallback_questions(pr_context)
-
+    raw_questions = await _call_groq(pr_context)
     questions: List[Question] = []
     for q_dict in raw_questions:
         try:
@@ -157,7 +165,5 @@ async def generate_questions(pr_context: PRContext) -> QuestionsResponse:
             logger.warning("Skipping invalid question schema item: {}", exc)
 
     if not questions:
-        raw_fallback = _generate_ast_fallback_questions(pr_context)
-        questions = [Question.model_validate(item) for item in raw_fallback]
-
+        raise QuestionGenerationError("No valid questions could be validated from LLM response")
     return questions

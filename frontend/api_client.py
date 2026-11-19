@@ -16,7 +16,7 @@ class BackendClient:
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         with httpx.Client(timeout=timeout) as client:
             resp = client.get(url)
-            if resp.is_error:
+            if resp.status_code >= 400:
                 try:
                     err_json = resp.json()
                     detail = err_json.get("detail", resp.text)
@@ -29,7 +29,7 @@ class BackendClient:
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         with httpx.Client(timeout=timeout) as client:
             resp = client.post(url, json=json_data)
-            if resp.is_error:
+            if resp.status_code >= 400:
                 try:
                     err_json = resp.json()
                     detail = err_json.get("detail", resp.text)
