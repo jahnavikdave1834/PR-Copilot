@@ -37,6 +37,17 @@ def render_new_assessment(client: BackendClient) -> None:
                 st.session_state["input_intern_id"] = "intern_alex@company.com"
                 st.rerun()
 
+        if "knowledge-graphs" in str(st.session_state.get("input_repo_url", "")).lower():
+            st.warning(
+                "You currently have your older 'Knowledge-Graphs' repository in the input field. "
+                "Your PR #1 was created in 'PR-Copilot'. Click below to automatically update the URL."
+            )
+            if st.button("Update to https://github.com/jahnavikdave1834/PR-Copilot", type="primary"):
+                st.session_state["input_repo_url"] = "https://github.com/jahnavikdave1834/PR-Copilot"
+                st.session_state["input_pr_number"] = 1
+                st.session_state["input_intern_id"] = "jahnavikdave1834@gmail.com"
+                st.rerun()
+
         repo_url = st.text_input(
             "GitHub Repository HTTPS URL",
             placeholder="https://github.com/owner/repository",
