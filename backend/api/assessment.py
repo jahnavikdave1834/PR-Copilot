@@ -33,19 +33,29 @@ async def generate_assessment(
     repo_url: str = Body(..., embed=True, description="GitHub repository HTTPS URL"),
     pr_number: int = Body(..., embed=True, ge=1, description="Pull request number"),
     intern_id: str = Body(..., embed=True, description="Intern identifier (e.g., email or username)"),
+    pr_data: Optional[dict] = Body(None, embed=True, description="Optional pre-fetched PR preview metadata"),
 ):
     """Fetch PR, analyse diff, generate technical questions and persist a new assessment session."""
-    try:
-        pr: PullRequestFullResponse = await fetch_pr_data(repo_url, pr_number)
-    except Exception as exc:
-        logger.error("GitHub fetch failed: {}", exc)
-        raise HTTPException(status_code=502, detail=f"Failed to fetch PR: {exc}") from exc
+    if pr_data:
+        try:
+            if hasattr(PullRequestFullResponse, "model_validate"):
+                pr = PullRequestFullResponse.model_validate(pr_data)
+            else:
+                pr = PullRequestFullResponse.parse_obj(pr_data)
+        except Exception:
+            pr = await fetch_pr_data(repo_url, pr_number)
+    else:
+        try:
+            pr = await fetch_pr_data(repo_url, pr_number)
+        except Exception as exc:
+            logger.error("GitHub fetch failed: {}", exc)
+            raise HTTPException(status_code=502, detail=f"Failed to fetch PR: {exc}") from exc
 
     pr_context = analyze_pr(pr)
 
     try:
         questions: List[Question] = await generate_questions(pr_context)
-    except QuestionGenerationError as exc:
+    except Exception as exc:
         logger.warning("Groq question generation unavailable ({}), using AST-grounded questions", exc)
         questions = generate_ast_fallback_questions(pr_context)
 

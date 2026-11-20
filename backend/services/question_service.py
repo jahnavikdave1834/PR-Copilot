@@ -110,7 +110,12 @@ def _generate_ast_fallback_questions(context: PRContext) -> List[dict]:
 
 async def _call_groq(context: PRContext) -> List[dict]:
     """Invoke Groq with a system prompt and the serialized PR context."""
-    client: GroqClient = get_groq_client()
+    try:
+        client: GroqClient = get_groq_client()
+    except Exception as exc:
+        logger.warning("Groq client initialization unavailable: {}", exc)
+        raise QuestionGenerationError(str(exc)) from exc
+
     system_prompt = (
         "You are an AI tutor generating technical evaluation questions for an intern who authored or reviewed a PR. "
         "Given the PR context JSON, generate between 5 and 8 questions. "

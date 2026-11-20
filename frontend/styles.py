@@ -239,20 +239,34 @@ CSS_THEME = """
     /* Primary buttons */
     button[data-testid="baseButton-primary"],
     .stButton > button[kind="primary"] {
-        background-color: #1B365D !important;
-        color: #FDFAF4 !important;
-        border: 1px solid #0F1E36 !important;
+        background-color: #EA580C !important;
+        border: 1px solid #C2410C !important;
         border-radius: 8px !important;
-        font-weight: 600 !important;
-        box-shadow: 0 2px 6px rgba(15, 30, 54, 0.2) !important;
+        font-weight: 700 !important;
+        box-shadow: 0 2px 6px rgba(234, 88, 12, 0.3) !important;
         transition: all 0.15s ease-in-out !important;
+    }
+    button[data-testid="baseButton-primary"] *,
+    .stButton > button[kind="primary"] *,
+    button[data-testid="baseButton-primary"] p,
+    .stButton > button[kind="primary"] p,
+    button[data-testid="baseButton-primary"] div,
+    .stButton > button[kind="primary"] div,
+    button[data-testid="baseButton-primary"] span,
+    .stButton > button[kind="primary"] span {
+        color: #FFFFFF !important;
+        font-weight: 700 !important;
+        font-size: 15px !important;
     }
     button[data-testid="baseButton-primary"]:hover,
     .stButton > button[kind="primary"]:hover {
-        background-color: #0F1E36 !important;
-        border-color: #0F1E36 !important;
+        background-color: #C2410C !important;
+        border-color: #9A3412 !important;
+        box-shadow: 0 4px 12px rgba(234, 88, 12, 0.45) !important;
+    }
+    button[data-testid="baseButton-primary"]:hover *,
+    .stButton > button[kind="primary"]:hover * {
         color: #FFFFFF !important;
-        box-shadow: 0 4px 10px rgba(15, 30, 54, 0.3) !important;
     }
 
     /* Secondary / standard buttons */

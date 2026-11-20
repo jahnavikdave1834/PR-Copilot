@@ -130,7 +130,9 @@ def render_new_assessment(client: BackendClient) -> None:
             if st.button("Generate Assessment & Technical Questions", type="primary", use_container_width=True):
                 with st.spinner("Analyzing diff AST and generating grounded questions via Groq LLM..."):
                     try:
-                        res = client.generate_assessment(repo_url, int(pr_number), intern_id)
+                        res = client.generate_assessment(
+                            repo_url, int(pr_number), intern_id, pr_data=st.session_state.get("current_pr")
+                        )
                         st.session_state["current_assessment_id"] = res["assessment_id"]
                         st.session_state["assessment_data"] = res
                         st.session_state["answers_draft"] = {}

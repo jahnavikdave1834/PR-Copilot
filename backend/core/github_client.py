@@ -94,6 +94,8 @@ class GitHubClient:
                 if remaining == 0:
                     reset_ts = int(response.headers.get("X-RateLimit-Reset", "0"))
                     wait_seconds = max(reset_ts - int(time.time()), 1)
+                    if wait_seconds > 5:
+                        raise GitHubError(429, f"GitHub API unauthenticated rate limit reached. Resets in {wait_seconds}s. Add GITHUB_TOKEN in .env for 5,000 req/hr.")
                     logger.warning("GitHub rate limit exhausted, sleeping {}s (attempt {})", wait_seconds, attempt)
                     await asyncio.sleep(wait_seconds)
                     continue  # retry after sleep

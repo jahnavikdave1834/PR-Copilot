@@ -34,15 +34,24 @@ def _normalize_repo_url(url: str) -> str:
     return f"https://github.com/{path}"
 
 
+_PR_CACHE: dict = {}
+
+
 async def fetch_pr_data(repo_url: str, pr_number: int) -> PullRequestFullResponse:
     """Validate inputs, invoke the ``GitHubClient`` and return the full PR model.
 
-    The function closes the client after the request to free resources.
+    Results are cached in-memory to prevent rate limit exhaustion during repeated calls.
     """
     normalized = _normalize_repo_url(repo_url)
+    cache_key = (normalized, pr_number)
+    if cache_key in _PR_CACHE:
+        return _PR_CACHE[cache_key]
+
     client: GitHubClient = get_github_client()
     try:
-        return await client.fetch_full_pr(normalized, pr_number)
+        data = await client.fetch_full_pr(normalized, pr_number)
+        _PR_CACHE[cache_key] = data
+        return data
     except GitHubError:
         # Propagate so the API layer can translate to HTTPException
         raise

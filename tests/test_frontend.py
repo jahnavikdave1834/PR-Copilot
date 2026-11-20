@@ -42,6 +42,24 @@ def test_api_client_endpoints():
         assert rep["report"]["percentage"] == 85.0
 
 
+def _mock_get_response(url, *args, **kwargs):
+    url_str = str(url)
+    if "health" in url_str:
+        return MagicMock(status_code=200, json=lambda: {"status": "ok"})
+    if "reports" in url_str:
+        return MagicMock(
+            status_code=200,
+            json=lambda: {"report": {"percentage": 85.0, "total_score": 25, "max_score": 30, "passed": True, "dimension_scores": {}}},
+        )
+    if "/assessment/" in url_str:
+        return MagicMock(
+            status_code=200,
+            json=lambda: {"id": 1, "intern_id": "intern_alex@company.com", "repo_url": "https://github.com/fastapi/fastapi", "pr_number": 1, "questions": []},
+        )
+    # Default list for assessments (/assessments)
+    return MagicMock(status_code=200, json=lambda: [])
+
+
 def test_streamlit_views_navigation():
     from streamlit.testing.v1 import AppTest
 
@@ -55,26 +73,28 @@ def test_streamlit_views_navigation():
         "Assessment History",
     ]
 
-    for view in views:
-        at = AppTest.from_file(APP_FILE)
-        at.run()
-        at.sidebar.radio[0].set_value(view).run()
-        assert len(at.exception) == 0, f"Exception in view {view}"
+    with patch("httpx.Client.get", side_effect=_mock_get_response), patch("httpx.Client.post") as mock_post:
+        for view in views:
+            at = AppTest.from_file(APP_FILE)
+            at.run(timeout=10)
+            at.sidebar.radio[0].set_value(view).run(timeout=10)
+            assert len(at.exception) == 0, f"Exception in view {view}"
 
 
 def test_streamlit_seeded_assessment_flow():
     from streamlit.testing.v1 import AppTest
 
-    at = AppTest.from_file(APP_FILE)
-    at.run()
-    assert len(at.exception) == 0
+    with patch("httpx.Client.get", side_effect=_mock_get_response), patch("httpx.Client.post") as mock_post:
+        at = AppTest.from_file(APP_FILE)
+        at.run(timeout=10)
+        assert len(at.exception) == 0
 
-    # Set assessment ID #1 and verify Results view
-    at.session_state["current_assessment_id"] = 1
-    at.sidebar.radio[0].set_value("Assessment Results").run()
-    assert len(at.exception) == 0
+        # Set assessment ID #1 and verify Results view
+        at.session_state["current_assessment_id"] = 1
+        at.sidebar.radio[0].set_value("Assessment Results").run(timeout=10)
+        assert len(at.exception) == 0
 
-    # Verify Intern Q&A view
-    at.sidebar.radio[0].set_value("Intern Q&A Interface").run()
-    assert len(at.exception) == 0
+        # Verify Intern Q&A view
+        at.sidebar.radio[0].set_value("Intern Q&A Interface").run(timeout=10)
+        assert len(at.exception) == 0
 

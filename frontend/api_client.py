@@ -44,12 +44,13 @@ class BackendClient:
     def fetch_pr(self, repo_url: str, pr_number: int) -> Dict[str, Any]:
         return self._post("/github/fetch-pr", {"repo_url": repo_url, "pr_number": pr_number})
 
-    def generate_assessment(self, repo_url: str, pr_number: int, intern_id: str) -> Dict[str, Any]:
-        return self._post(
-            "/assessment/generate",
-            {"repo_url": repo_url, "pr_number": pr_number, "intern_id": intern_id},
-            timeout=120.0,
-        )
+    def generate_assessment(
+        self, repo_url: str, pr_number: int, intern_id: str, pr_data: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        payload: Dict[str, Any] = {"repo_url": repo_url, "pr_number": pr_number, "intern_id": intern_id}
+        if pr_data:
+            payload["pr_data"] = pr_data
+        return self._post("/assessment/generate", payload, timeout=120.0)
 
     def submit_assessment(self, assessment_id: int, answers: Dict[str, str]) -> Dict[str, Any]:
         return self._post(
