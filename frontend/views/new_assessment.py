@@ -14,18 +14,24 @@ def render_new_assessment(client: BackendClient) -> None:
     )
 
     # Initialize widget defaults in session_state to avoid Streamlit value conflict warnings
-    st.session_state.setdefault("input_repo_url", "https://github.com/fastapi/fastapi")
+    st.session_state.setdefault("input_repo_url", "https://github.com/jahnavikdave1834/PR-Copilot")
     st.session_state.setdefault("input_pr_number", 1)
-    st.session_state.setdefault("input_intern_id", "intern_alex@company.com")
+    st.session_state.setdefault("input_intern_id", "jahnavikdave1834@gmail.com")
 
     with st.container():
         st.markdown('<div class="saas-card">', unsafe_allow_html=True)
         st.subheader("1. Assessment Target Configuration")
 
         # Quick sample fill
-        col_btn1, col_btn2 = st.columns([1, 4])
+        col_btn1, col_btn2, col_btn3 = st.columns([1.5, 1.5, 2])
         with col_btn1:
-            if st.button("Use Sample PR", help="Fill with a popular open-source repository PR for testing"):
+            if st.button("Use PR-Copilot (Your PR #1)", help="Fill with your PR-Copilot repository PR #1", type="primary"):
+                st.session_state["input_repo_url"] = "https://github.com/jahnavikdave1834/PR-Copilot"
+                st.session_state["input_pr_number"] = 1
+                st.session_state["input_intern_id"] = "jahnavikdave1834@gmail.com"
+                st.rerun()
+        with col_btn2:
+            if st.button("Use Sample PR (FastAPI)", help="Fill with sample open-source PR"):
                 st.session_state["input_repo_url"] = "https://github.com/fastapi/fastapi"
                 st.session_state["input_pr_number"] = 1
                 st.session_state["input_intern_id"] = "intern_alex@company.com"
