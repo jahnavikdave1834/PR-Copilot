@@ -14,7 +14,10 @@ def render_new_assessment(client: BackendClient) -> None:
     )
 
     # Initialize widget defaults in session_state to avoid Streamlit value conflict warnings
-    st.session_state.setdefault("input_repo_url", "https://github.com/jahnavikdave1834/PR-Copilot")
+    st.session_state.setdefault(
+        "input_repo_url",
+        "https://github.com/jahnavikdave1834/Knowledge-Graphs-on-Multilingual-Fake-News-Detection",
+    )
     st.session_state.setdefault("input_pr_number", 1)
     st.session_state.setdefault("input_intern_id", "jahnavikdave1834@gmail.com")
 
@@ -23,29 +26,24 @@ def render_new_assessment(client: BackendClient) -> None:
         st.subheader("1. Assessment Target Configuration")
 
         # Quick sample fill
-        col_btn1, col_btn2, col_btn3 = st.columns([1.5, 1.5, 2])
+        col_btn1, col_btn2, col_btn3 = st.columns([1.8, 1.4, 1.4])
         with col_btn1:
-            if st.button("Use PR-Copilot (Your PR #1)", help="Fill with your PR-Copilot repository PR #1", type="primary"):
-                st.session_state["input_repo_url"] = "https://github.com/jahnavikdave1834/PR-Copilot"
+            if st.button("Use Knowledge-Graphs (PR #1)", help="Target repository: Knowledge-Graphs", type="primary"):
+                st.session_state["input_repo_url"] = "https://github.com/jahnavikdave1834/Knowledge-Graphs-on-Multilingual-Fake-News-Detection"
                 st.session_state["input_pr_number"] = 1
                 st.session_state["input_intern_id"] = "jahnavikdave1834@gmail.com"
                 st.rerun()
         with col_btn2:
+            if st.button("Use PR-Copilot (PR #1)", help="Target repository: PR-Copilot"):
+                st.session_state["input_repo_url"] = "https://github.com/jahnavikdave1834/PR-Copilot"
+                st.session_state["input_pr_number"] = 1
+                st.session_state["input_intern_id"] = "jahnavikdave1834@gmail.com"
+                st.rerun()
+        with col_btn3:
             if st.button("Use Sample PR (FastAPI)", help="Fill with sample open-source PR"):
                 st.session_state["input_repo_url"] = "https://github.com/fastapi/fastapi"
                 st.session_state["input_pr_number"] = 1
                 st.session_state["input_intern_id"] = "intern_alex@company.com"
-                st.rerun()
-
-        if "knowledge-graphs" in str(st.session_state.get("input_repo_url", "")).lower():
-            st.warning(
-                "You currently have your older 'Knowledge-Graphs' repository in the input field. "
-                "Your PR #1 was created in 'PR-Copilot'. Click below to automatically update the URL."
-            )
-            if st.button("Update to https://github.com/jahnavikdave1834/PR-Copilot", type="primary"):
-                st.session_state["input_repo_url"] = "https://github.com/jahnavikdave1834/PR-Copilot"
-                st.session_state["input_pr_number"] = 1
-                st.session_state["input_intern_id"] = "jahnavikdave1834@gmail.com"
                 st.rerun()
 
         repo_url = st.text_input(

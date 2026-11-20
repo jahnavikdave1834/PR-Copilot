@@ -30,14 +30,7 @@ async def fetch_pr(
         status_map = {404: 404, 401: 401, 403: 429}
         http_status = status_map.get(ghe.status_code, 502)
         if ghe.status_code == 404:
-            if "knowledge-graphs" in repo_url.lower():
-                detail_msg = (
-                    f"Notice: You entered '{repo_url}', which has no pull requests. "
-                    "Your PR #1 was created in 'https://github.com/jahnavikdave1834/PR-Copilot'. "
-                    "Please change the GitHub Repository URL in the input field to 'https://github.com/jahnavikdave1834/PR-Copilot'."
-                )
-            else:
-                detail_msg = f"Pull request #{pr_number} was not found on GitHub for repository '{repo_url}'. Please check that the repository and PR number exist and are publicly accessible."
+            detail_msg = f"Pull request #{pr_number} was not found on GitHub for repository '{repo_url}'. Please check that the repository and PR number exist and are publicly accessible."
         else:
             detail_msg = ghe.detail
         logger.error("GitHub API error {}: {}", ghe.status_code, detail_msg)
